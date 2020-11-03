@@ -3,6 +3,8 @@ using SalesWebMvc.Models;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
+using SalesWebMvc.Services.Excepitons;
 
 namespace SalesWebMvc.Controllers.Services
     {
@@ -39,6 +41,23 @@ namespace SalesWebMvc.Controllers.Services
             var obj = _context.Seller.Find(id);
             _context.Seller.Remove(obj);
             _context.SaveChanges();
+            }
+
+        public void Update(Seller obj)
+            {
+            if (!_context.Seller.Any(X500DistinguishedName => X500DistinguishedName.Id == obj.Id))
+                {
+                throw new NotFoundException("Id not found");
+                }
+            try
+                {
+                _context.Update(obj);
+                _context.SaveChanges();
+                }
+            catch(DbConcurrencyException e)
+                {
+                throw new DbConcurrencyException(e.Message);
+                }
             }
 
         }
